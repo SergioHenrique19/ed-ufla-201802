@@ -74,7 +74,7 @@ void PilhaOp::imprimir(){
             cout << "OPERACAO: CREDITO";
         }
 
-        cout << "VALOR: " << aux->valor << endl;
+        cout << endl << "VALOR: " << aux->valor << endl;
         aux = aux->proximo;
     }
 
@@ -105,7 +105,7 @@ int main(){
                 break;
 
             case 'q':
-                cout << "Saindo...";
+                cout << "Saindo..." << endl;
                 break;
             
             default:
