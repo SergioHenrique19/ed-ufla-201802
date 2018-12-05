@@ -53,7 +53,6 @@ class PilhaOp{
         PilhaOp();
         ~PilhaOp();
         void empilharOperacao(bool oper, int preco);
-        void limparOperacao();
         void imprimirOperacoes();
 };
 
@@ -78,13 +77,12 @@ class ListaCliente{
     private:
         NohCliente* primeiro;
         NohCliente* ultimo;
-        int tam;
     public:
         ListaCliente();
         ~ListaCliente();
         void inserirCliente(string id, string nome);
         void inserirOper(bool oper, int preco, string id);
-        int buscarCliente(string id);
+        void buscarCliente(string id);
         void deletarCliente(string id);
         void imprimirCliente();
 };
@@ -95,7 +93,6 @@ class ListaCliente{
 ListaCliente::ListaCliente(){
     primeiro = NULL;
     ultimo = NULL;
-    tam = 0;
 }
 
 //Destrutor da lista de clientes
@@ -106,7 +103,6 @@ ListaCliente::~ListaCliente(){
     while(aux != NULL){
         prox = aux->prox;
         delete aux;
-        tam--;
         aux = prox;
     }
 }
@@ -125,7 +121,6 @@ void ListaCliente::inserirCliente(string id, string nome){
             ultimo->prox = novo;
             ultimo = novo;
         }
-        tam++;
     }
 }
 
@@ -147,9 +142,8 @@ void ListaCliente::inserirOper(bool oper, int preco, string id){
 }
 
 //Buscar cliente na lista de clientes
-int ListaCliente::buscarCliente(string id){
+void ListaCliente::buscarCliente(string id){
     NohCliente* aux = primeiro;
-    int cont = 0;
 
     while(aux != NULL){
         if(aux->cliente.cpf == id){
@@ -157,63 +151,54 @@ int ListaCliente::buscarCliente(string id){
             cout << "Nome: " << aux->cliente.nome << endl;
             aux->operacoes.imprimirOperacoes();
             cout << endl;
-            return cont;
         }else{
             aux = aux->prox;
         }
-        cont++;
     }
-
-    return -1;
+    
+    if(aux == NULL){
+        cout << "Cliente nao cadastrado...\n";
+    }
 }
 
 //Deletar cliente da lista
 void ListaCliente::deletarCliente(string id){
-    NohCliente* aux = primeiro;
-    NohCliente* ant = NULL;
-    int pos = 0;
-    bool achou = false;
-    
-    while((pos < tam) or (achou != true)){
-        if(aux->cliente.cpf == id){
-            achou = true;
-        }else{
-            ant = aux;
-            aux = aux->prox;
-            pos++;
+    if(primeiro != NULL) {
+        NohCliente* atual = primeiro;
+        NohCliente* anterior = atual;
+        bool achou = false;
+        
+        while(atual != NULL and atual->cliente.cpf != id) {
+            anterior = atual;
+            atual = atual->prox;
         }
-    }
-
-    if(achou == false){
+        
+        if(atual != NULL) {
+            if(atual->cliente.cpf == id) {
+                achou = true;
+            }
+        }
+        
+        if(achou == true) {
+            if(atual == primeiro) {
+                atual = atual->prox;
+                primeiro = atual;
+                delete anterior;
+            } else if(atual != primeiro and atual != ultimo) {
+                anterior->prox = atual->prox;
+                delete atual;
+            } else if(atual == ultimo) {
+                ultimo = anterior;
+                delete atual;
+            }
+        } else {
+            cout << "Cliente nao cadastrado...\n";
+        }
+    } else {
         cout << "Cliente nao cadastrado...\n";
-    }else{
-        if(pos > 0 and aux != ultimo){
-            ant->prox = aux->prox;
-            aux->operacoes.limparOperacao();
-            delete aux;
-        }else if(pos > 0 and aux == ultimo){
-            ultimo = ant;
-            ant->prox = NULL;
-            aux->operacoes.limparOperacao();
-            delete aux;
-        }else if(pos == 0 and primeiro == ultimo){
-            ant = aux;
-            aux = aux->prox;
-            primeiro = NULL;
-            ultimo = NULL;
-            ant->operacoes.limparOperacao();
-            delete ant;
-        }else if(pos == 0 and primeiro != ultimo){
-            ant = aux;
-            aux = aux->prox;
-            primeiro = aux;
-            ant->operacoes.limparOperacao();
-            delete ant;
-        }
-
-        tam--;
     }
 }
+
 
 //Imprimir lista de clientes com seus respectivos dados
 void ListaCliente::imprimirCliente(){
@@ -269,15 +254,6 @@ void PilhaOp::empilharOperacao(bool oper, int preco){
         }
         
         tam++;
-    }
-}
-
-//Excluir as operacoes do cliente
-void PilhaOp::limparOperacao(){
-    while(tam != 0){
-        delete topo;
-        topo = topo->prox;
-        tam--;
     }
 }
 
