@@ -11,6 +11,7 @@
 */
 
 #include <iostream>
+#include <string.h>
 
 using namespace std;
 
@@ -22,7 +23,6 @@ struct DadosCli{
 
 //Estrutura com os dados da operacao
 struct DadosOp{
-    string ident;
     bool op;   //true: debitar(sub), false: creditar(add)
     int valor;
 };
@@ -36,7 +36,6 @@ class NohOp{
         NohOp* prox;
     public:
         NohOp(){   //Construtor do NohOp
-            oper.ident = " ";
             oper.op = 0;
             oper.valor = 0;
         }
@@ -53,7 +52,7 @@ class PilhaOp{
     public:
         PilhaOp();
         ~PilhaOp();
-        void empilharOperacao(bool oper, int preco, string id);
+        void empilharOperacao(bool oper, int preco);
         void limparOperacao();
         void imprimirOperacoes();
 };
@@ -83,6 +82,7 @@ class ListaCliente{
         ListaCliente();
         ~ListaCliente();
         void inserirCliente(string id, string nome);
+        void inserirOper(bool oper, int preco, string id);
         int buscarCliente(string id);
         void deletarCliente(string id);
         void imprimirCliente();
@@ -128,6 +128,21 @@ void ListaCliente::inserirCliente(string id, string nome){
     }
 }
 
+//Inserir a noh-operacao na pilha do cliente desejado
+void ListaCliente::inserirOper(bool oper, int preco, string id){
+    NohCliente* aux = primeiro;
+    bool achou = false;
+    
+    while(achou == false or aux != NULL){
+        if(aux->cliente.cpf == id){
+            achou = true;
+            aux->operacao->empilharOperacao(oper, preco);
+        }else{
+            aux = aux->prox;
+        }
+    }
+}
+
 //Buscar cliente na lista de clientes
 int ListaCliente::buscarCliente(string id){
     NohCliente* aux = primeiro;
@@ -135,7 +150,9 @@ int ListaCliente::buscarCliente(string id){
 
     while(aux != NULL){
         if(aux->cliente.cpf == id){
-            cout << "Saldo: " << aux->operacao->saldo << endl;
+            cout << "\nCPF: " << aux->cliente.cpf << endl;
+            cout << "Nome: " << aux->cliente.nome << endl;
+            aux->operacao->imprimirOperacoes();
             return cont;
         }else{
             aux = aux->prox;
@@ -144,6 +161,64 @@ int ListaCliente::buscarCliente(string id){
     }
 
     return -1;
+}
+
+//Deletar cliente da lista
+void ListaCliente::deletarCliente(string id){
+    int pos = buscarCliente(id);
+
+    if(pos == -1){
+        cout << "Cliente nao cadastrado...";
+    }else{
+        NohCliente* aux = primeiro;
+        NohCliente* ant = NULL;
+        int cont = 0;
+
+        while(cont != pos){
+            ant = aux;
+            aux = aux->prox;
+            cont++;
+        }
+
+        if(cont > 0 and aux != ultimo){
+            ant->prox = aux->prox;
+            aux->operacao->limparOperacao();
+            delete aux;
+        }else if(cont > 0 and aux == ultimo){
+            ultimo = ant;
+            ant->prox = NULL;
+            aux->operacao->limparOperacao();
+            delete aux;
+        }else if(cont == 0 and primeiro == ultimo){
+            ant = aux;
+            aux = aux->prox;
+            primeiro = NULL;
+            ultimo = NULL;
+            ant->operacao->limparOperacao();
+            delete ant;
+        }else if(cont == 0 and primeiro != ultimo){
+            ant = aux;
+            aux = aux->prox;
+            primeiro = aux;
+            ant->operacao->limparOperacao();
+            delete ant;
+        }
+
+        tam--;
+    }
+}
+
+//Imprimir lista de clientes com seus respectivos dados
+void ListaCliente::imprimirCliente(){
+    NohCliente* aux = primeiro;
+    
+    while(aux != NULL){
+        cout << "\nCPF: " << aux->cliente.cpf << endl;
+        cout << "Nome: " << aux->cliente.nome << endl;
+        cout << "Saldo: " << aux->operacao->saldo << endl;
+
+        aux = aux->prox;
+    }
 }
 
 /*====================== IMPLEMENTACAO DA OPERACAO =====================================*/
@@ -171,9 +246,8 @@ PilhaOp::~PilhaOp(){
 }
 
 //Empilhar/cadastrar nova operacao do cliente
-void PilhaOp::empilharOperacao(bool oper, int preco, string id){
+void PilhaOp::empilharOperacao(bool oper, int preco){
     NohOp* novo = new NohOp();
-    novo->oper.ident = id;
     novo->oper.op = oper;
     novo->oper.valor = preco;
 
@@ -186,15 +260,100 @@ void PilhaOp::empilharOperacao(bool oper, int preco, string id){
         }else{
             saldo-=novo->oper.valor;
         }
+        
+        tam++;
     }
 }
 
-//Excluir as operacoes
+//Excluir as operacoes do cliente
 void PilhaOp::limparOperacao(){
-    
+    while(tam != 0){
+        delete topo;
+        topo = topo->prox;
+        tam--;
+    }
+}
+
+//Imprimir a pilha de operacoes do cliente
+void PilhaOp::imprimirOperacoes(){
+    NohOp* aux = topo;
+
+    while(aux != NULL){
+        if(aux->oper.op == true){
+            cout << "OPERACAO: DEBITO";
+        }else{
+            cout << "OPERACAO: CREDITO";
+        }
+
+        cout << endl << "VALOR: " << aux->oper.valor << endl;
+        aux = aux->prox;
+    }
+
+    cout << "SALDO: " << saldo << endl;
 }
 
 //Programa principal
 int main(){
+    ListaCliente listacli;
+    
+    string id, nome;
+    bool acao = false;
+    int preco = 0;
+    char op = 'a';
+    
+    while(op != 'q'){
+        cout << "\nOperacao: ";
+        cin >> op;
+        cout << endl;
+        
+        switch(op){
+            case 'c':   //inserir cliente  ->  ANDAMENTO
+                cin.ignore();
+                cout << "CPF: ";
+                getline(cin, id);
+                cout << "Nome: ";
+                getline(cin, nome);
+                listacli.inserirCliente(id, nome);
+                break;
+            
+            case 'b':   //buscar cliente  ->  ANDAMENTO
+                cin.ignore();
+                cout << "CPF: ";
+                getline(cin, id);
+                listacli.buscarCliente(id);
+                break;
+                
+            case 'p':   //imprimir lista de cliente  ->  ANDAMENTO
+                listacli.imprimirCliente();
+                break;
+                
+            case 'd':   //deletar cliente  ->  ANDAMENTO
+                cin.ignore();
+                cout << "CPF: ";
+                getline(cin, id);
+                listacli.deletarCliente(id);
+                break;
+                
+            case 'o':   //acrescetar operacao  ->  ANDAMENTO
+                cin.ignore();
+                cout << "CPF: ";
+                getline(cin, id);
+                cout << "Categoria: ";
+                cin >> acao;
+                cout << "Valor: ";
+                cin >> preco;
+                listacli.inserirOper(acao, preco, id);
+                break;
+            
+            case 'q':   //sair
+                cout << "Saindo...\n";
+                break;
+                
+            default:
+                cout << "Comando invalido...";
+                break;
+        }
+    }
+    
     return 0;
 }
