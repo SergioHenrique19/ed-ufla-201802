@@ -65,6 +65,7 @@ class NohCliente{
         DadosCli cliente;
         NohCliente* prox;
         PilhaOp* operacao;
+        PilhaOp operacoes;
     public:
         NohCliente(){   //Construtor do NohCliente
             cliente.cpf = " ";
@@ -132,11 +133,13 @@ void ListaCliente::inserirCliente(string id, string nome){
 void ListaCliente::inserirOper(bool oper, int preco, string id){
     NohCliente* aux = primeiro;
     bool achou = false;
+    bool cat = oper;
+    int valor = preco;
     
-    while(achou == false or aux != NULL){
+    while(achou != true){
         if(aux->cliente.cpf == id){
             achou = true;
-            aux->operacao->empilharOperacao(oper, preco);
+            aux->operacoes.empilharOperacao(cat, valor);
         }else{
             aux = aux->prox;
         }
@@ -152,7 +155,8 @@ int ListaCliente::buscarCliente(string id){
         if(aux->cliente.cpf == id){
             cout << "\nCPF: " << aux->cliente.cpf << endl;
             cout << "Nome: " << aux->cliente.nome << endl;
-            aux->operacao->imprimirOperacoes();
+            aux->operacoes.imprimirOperacoes();
+            cout << endl;
             return cont;
         }else{
             aux = aux->prox;
@@ -165,42 +169,45 @@ int ListaCliente::buscarCliente(string id){
 
 //Deletar cliente da lista
 void ListaCliente::deletarCliente(string id){
-    int pos = buscarCliente(id);
-
-    if(pos == -1){
-        cout << "Cliente nao cadastrado...";
-    }else{
-        NohCliente* aux = primeiro;
-        NohCliente* ant = NULL;
-        int cont = 0;
-
-        while(cont != pos){
+    NohCliente* aux = primeiro;
+    NohCliente* ant = NULL;
+    int pos = 0;
+    bool achou = false;
+    
+    while((pos < tam) or (achou != true)){
+        if(aux->cliente.cpf == id){
+            achou = true;
+        }else{
             ant = aux;
             aux = aux->prox;
-            cont++;
+            pos++;
         }
+    }
 
-        if(cont > 0 and aux != ultimo){
+    if(achou == false){
+        cout << "Cliente nao cadastrado...\n";
+    }else{
+        if(pos > 0 and aux != ultimo){
             ant->prox = aux->prox;
-            aux->operacao->limparOperacao();
+            aux->operacoes.limparOperacao();
             delete aux;
-        }else if(cont > 0 and aux == ultimo){
+        }else if(pos > 0 and aux == ultimo){
             ultimo = ant;
             ant->prox = NULL;
-            aux->operacao->limparOperacao();
+            aux->operacoes.limparOperacao();
             delete aux;
-        }else if(cont == 0 and primeiro == ultimo){
+        }else if(pos == 0 and primeiro == ultimo){
             ant = aux;
             aux = aux->prox;
             primeiro = NULL;
             ultimo = NULL;
-            ant->operacao->limparOperacao();
+            ant->operacoes.limparOperacao();
             delete ant;
-        }else if(cont == 0 and primeiro != ultimo){
+        }else if(pos == 0 and primeiro != ultimo){
             ant = aux;
             aux = aux->prox;
             primeiro = aux;
-            ant->operacao->limparOperacao();
+            ant->operacoes.limparOperacao();
             delete ant;
         }
 
@@ -215,7 +222,7 @@ void ListaCliente::imprimirCliente(){
     while(aux != NULL){
         cout << "\nCPF: " << aux->cliente.cpf << endl;
         cout << "Nome: " << aux->cliente.nome << endl;
-        cout << "Saldo: " << aux->operacao->saldo << endl;
+        cout << "Saldo: " << aux->operacoes.saldo << endl;
 
         aux = aux->prox;
     }
@@ -307,7 +314,7 @@ int main(){
         cout << endl;
         
         switch(op){
-            case 'c':   //inserir cliente  ->  ANDAMENTO
+            case 'c':   //inserir cliente
                 cin.ignore();
                 cout << "CPF: ";
                 getline(cin, id);
@@ -316,25 +323,25 @@ int main(){
                 listacli.inserirCliente(id, nome);
                 break;
             
-            case 'b':   //buscar cliente  ->  ANDAMENTO
+            case 'b':   //buscar cliente
                 cin.ignore();
                 cout << "CPF: ";
                 getline(cin, id);
                 listacli.buscarCliente(id);
                 break;
                 
-            case 'p':   //imprimir lista de cliente  ->  ANDAMENTO
+            case 'p':   //imprimir lista de cliente
                 listacli.imprimirCliente();
                 break;
                 
-            case 'd':   //deletar cliente  ->  ANDAMENTO
+            case 'd':   //deletar cliente
                 cin.ignore();
                 cout << "CPF: ";
                 getline(cin, id);
                 listacli.deletarCliente(id);
                 break;
                 
-            case 'o':   //acrescetar operacao  ->  ANDAMENTO
+            case 'o':   //acrescetar operacao
                 cin.ignore();
                 cout << "CPF: ";
                 getline(cin, id);
