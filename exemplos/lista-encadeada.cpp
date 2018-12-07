@@ -33,6 +33,7 @@ class Lista{
         void inserirNoh(int valor, int pos);
         void inserirNoh(int valor);
         int buscarNoh(int valor);
+        void deletarNoh(int pos);
         void imprimirLista();
 };
 
@@ -123,6 +124,30 @@ int Lista::buscarNoh(int valor){
     }
 }
 
+//Deletar noh da lista
+void Lista::deletarNoh(int pos){
+    if((pos >= 0) and (pos < tamanho)){
+        Noh* aux = primeiro;
+        Noh* ant = NULL;
+        int cont = 0;
+
+        while(cont != pos){
+            ant = aux;
+            aux = aux->proximo;
+            cont++;
+        }
+
+        ant->proximo = aux->proximo;
+        aux->proximo = NULL;
+        delete aux;
+        tamanho--;
+
+        cout << "\nNoh removido com sucesso...\n";
+    }else{
+        cout << "\nEssa posicao não existe...\n";
+    }
+}
+
 //Imprimir elementos da lista com posicao e valor
 void Lista::imprimirLista(){
     Noh* aux = primeiro;
@@ -167,6 +192,12 @@ int main(){
                 cout << "Valor: ";
                 cin >> valor;
                 cout << listanoh.buscarNoh(valor) << endl;
+                break;
+
+            case 'd':
+                cout << "Posicao: ";
+                cin >> pos;
+                listanoh.deletarNoh(pos);
                 break;
 
             case 'p':
