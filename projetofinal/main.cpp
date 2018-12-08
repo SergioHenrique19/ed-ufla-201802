@@ -11,6 +11,7 @@
 */
 
 #include <iostream>
+#include <fstream>
 #include <string.h>
 
 using namespace std;
@@ -85,6 +86,7 @@ class ListaCliente{
         void buscarCliente(string id);
         void deletarCliente(string id);
         void imprimirCliente();
+        void salvarArquivo();
 };
  
 /*====================== IMPLEMENTACAO DO CLIENTE =====================================*/
@@ -213,6 +215,26 @@ void ListaCliente::imprimirCliente(){
     }
 }
 
+//Salvar lista de clientes no arquivo
+void ListaCliente::salvarArquivo(){
+    ofstream arq("dados.txt");
+
+    if(arq){
+        NohCliente* aux = primeiro;
+
+        while(aux != NULL){
+            arq << aux->cliente.cpf;
+            arq << "\n";
+            arq << aux->cliente.nome;
+            arq << "\n";
+            arq << aux->operacoes.saldo;
+            arq << "\n";
+
+            aux = aux->prox;
+        }
+    }
+}
+
 /*====================== IMPLEMENTACAO DA OPERACAO =====================================*/
 
 //Construtor da pilha de operacoes do cliente
@@ -326,6 +348,11 @@ int main(){
                 cout << "Valor: ";
                 cin >> preco;
                 listacli.inserirOper(acao, preco, id);
+                break;
+            
+            case 's':
+                listacli.salvarArquivo();
+                cout << "Salvo com sucesso...";
                 break;
             
             case 'q':   //sair
