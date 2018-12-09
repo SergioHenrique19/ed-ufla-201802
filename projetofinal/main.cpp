@@ -127,19 +127,23 @@ void ListaCliente::inserirCliente(string id, string nome){
 }
 
 //Inserir a noh-operacao na pilha do cliente desejado
-void ListaCliente::inserirOper(bool oper, int preco, string id){
+void ListaCliente::inserirOper(bool oper, int preco, string id){      
     NohCliente* aux = primeiro;
     bool achou = false;
     bool cat = oper;
     int valor = preco;
     
-    while(achou != true){
+    while(aux != NULL and achou != true){
         if(aux->cliente.cpf == id){
             achou = true;
             aux->operacoes.empilharOperacao(cat, valor);
         }else{
             aux = aux->prox;
         }
+    }
+
+    if(aux == NULL){
+        cout << "Cliente nao cadastrado...\n";
     }
 }
 
@@ -167,38 +171,38 @@ void ListaCliente::buscarCliente(string id){
 
 //Deletar cliente da lista
 void ListaCliente::deletarCliente(string id){
-    if(primeiro != NULL) {
+    if(primeiro != NULL){
         NohCliente* atual = primeiro;
         NohCliente* anterior = atual;
         bool achou = false;
         
-        while(atual != NULL and atual->cliente.cpf != id) {
+        while(atual != NULL and atual->cliente.cpf != id){
             anterior = atual;
             atual = atual->prox;
         }
         
-        if(atual != NULL) {
-            if(atual->cliente.cpf == id) {
+        if(atual != NULL){
+            if(atual->cliente.cpf == id){
                 achou = true;
             }
         }
         
-        if(achou == true) {
-            if(atual == primeiro) {
+        if(achou == true){
+            if(atual == primeiro){
                 atual = atual->prox;
                 primeiro = atual;
                 delete anterior;
-            } else if(atual != primeiro and atual != ultimo) {
+            }else if(atual != primeiro and atual != ultimo){
                 anterior->prox = atual->prox;
                 delete atual;
-            } else if(atual == ultimo) {
+            }else if(atual == ultimo){
                 ultimo = anterior;
                 delete atual;
             }
-        } else {
+        }else{
             cout << "Cliente nao cadastrado...\n";
         }
-    } else {
+    }else{
         cout << "Cliente nao cadastrado...\n";
     }
 }
