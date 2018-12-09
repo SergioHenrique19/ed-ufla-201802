@@ -1,13 +1,13 @@
 /*
  * Trabalho de Estrutura de Dados
  * 
- * Sistema de cadastro e pagamento com Arduino
+ * Card Fidelitas - Sistema de cadastro e pagamento com Arduino
  *  e uso das estruturas de dados lista e pilha
  * 
  * Copyright 2018 by João Victor Teófilo Salgado,
  *  Layse Cristina Silva Garcia e Sérgio Henrique Menta Garcia
  * 
- * Arquivo principal
+ * Arquivo principal em C++
 */
 
 #include <iostream>
