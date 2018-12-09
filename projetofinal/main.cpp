@@ -146,12 +146,14 @@ void ListaCliente::inserirOper(bool oper, int preco, string id){
 //Buscar cliente na lista de clientes
 void ListaCliente::buscarCliente(string id){
     NohCliente* aux = primeiro;
+    bool achou = false;
 
-    while(aux != NULL){
+    while(aux != NULL and achou != true){
         if(aux->cliente.cpf == id){
             cout << "\nCPF: " << aux->cliente.cpf << endl;
             cout << "Nome: " << aux->cliente.nome << endl;
             aux->operacoes.imprimirOperacoes();
+            achou = true;
             cout << endl;
         }else{
             aux = aux->prox;
