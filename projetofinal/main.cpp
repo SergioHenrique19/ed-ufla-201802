@@ -111,17 +111,32 @@ ListaCliente::~ListaCliente(){
 
 //Inserir novo clinte na lista de clientes
 void ListaCliente::inserirCliente(string id, string nome){
-    NohCliente* novo = new NohCliente();
-    novo->cliente.cpf = id;
-    novo->cliente.nome = nome;
+    bool achou = false;
+    NohCliente* aux = primeiro;
 
-    if(novo){
-        if(primeiro == NULL){
-            primeiro = novo;
-            ultimo = novo;
+    while(aux != NULL and achou != true){
+        if(aux->cliente.cpf == id){
+            achou = true;
         }else{
-            ultimo->prox = novo;
-            ultimo = novo;
+            aux = aux->prox;
+        }
+    }
+
+    if(achou == true){
+        cout << "CPF ja cadastrado...\n";
+    }else{
+        NohCliente* novo = new NohCliente();
+        novo->cliente.cpf = id;
+        novo->cliente.nome = nome;
+
+        if(novo){
+            if(primeiro == NULL){
+                primeiro = novo;
+                ultimo = novo;
+            }else{
+                ultimo->prox = novo;
+                ultimo = novo;
+            }
         }
     }
 }
@@ -223,7 +238,7 @@ void ListaCliente::imprimirCliente(){
 
 //Salvar lista de clientes no arquivo
 void ListaCliente::salvarArquivo(){
-    ofstream arq("dados.txt");
+    ofstream arq("dados.csv");
 
     if(arq){
         NohCliente* aux = primeiro;
