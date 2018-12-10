@@ -244,7 +244,7 @@ void ListaCliente::imprimirCliente(){
 void ListaCliente::salvarArquivo(){
     ofstream arq("dados.csv");
     
-    arq << "ID, CPF, Nome, Saldo\n";
+    arq << "ID,CPF,Nome,Saldo\n";
 
     if(arq){
         NohCliente* aux = primeiro;
