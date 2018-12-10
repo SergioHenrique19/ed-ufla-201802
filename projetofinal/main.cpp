@@ -11,8 +11,10 @@
 */
 
 #include <iostream>
+#include <sstream>
+#include <ostream>
 #include <fstream>
-#include <string.h>
+#include <string>
 
 using namespace std;
 
@@ -82,11 +84,13 @@ class ListaCliente{
         ListaCliente();
         ~ListaCliente();
         void inserirCliente(string id, string nome);
+        void inserirCliente(NohCliente* novo);
         void inserirOper(bool oper, int preco, string id);
         void buscarCliente(string id);
         void deletarCliente(string id);
         void imprimirCliente();
         void salvarArquivo();
+        void atualizar();
 };
  
 /*====================== IMPLEMENTACAO DO CLIENTE =====================================*/
@@ -239,19 +243,95 @@ void ListaCliente::imprimirCliente(){
 //Salvar lista de clientes no arquivo
 void ListaCliente::salvarArquivo(){
     ofstream arq("dados.csv");
+    
+    arq << "ID, CPF, Nome, Saldo\n";
 
     if(arq){
         NohCliente* aux = primeiro;
+        int ctr = 0;
 
         while(aux != NULL){
+            arq << ctr;
+            arq << ",";
             arq << aux->cliente.cpf;
-            arq << "\n";
+            arq << ",";
             arq << aux->cliente.nome;
-            arq << "\n";
+            arq << ",";
             arq << aux->operacoes.saldo;
             arq << "\n";
 
             aux = aux->prox;
+            ctr++;
+        }
+    }
+}
+
+//Atualizar a lista a partir de um arquivo
+void ListaCliente::atualizar(){
+    NohCliente* aux;
+    ifstream arq("dados.csv");
+    string v = ",", linha, item;
+    int c = 0, b = 0;
+
+    while(getline(arq,linha)){
+        if(c > 0){
+            b = 0;
+            size_t inicio;
+            size_t fim = 0;
+            aux = new NohCliente();
+
+            while((inicio = linha.find_first_not_of(',', fim)) != std::string::npos){
+                fim = linha.find(',', inicio);
+                if(b > 0){
+                    item = (linha.substr(inicio, fim - inicio));
+
+                    switch(b){
+                        case 1:
+                            aux->cliente.cpf = item;
+                            break;
+
+                        case 2:
+                            aux->cliente.nome = item;
+                            break;
+
+                        case 3:
+                            aux->operacoes.saldo = stoi(item);
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+                b++;
+            }
+            inserirCliente(aux);
+        }
+        c++;
+    }
+}
+
+//Adicionar cliente a partir de arquivo
+void ListaCliente::inserirCliente(NohCliente* novo){
+    bool achou = false;
+    NohCliente* aux = primeiro;
+
+    while((aux != NULL) && (achou != true)){
+        if(aux->cliente.cpf == novo->cliente.cpf){
+            achou = true;
+        }else{
+            aux = aux->prox;
+        }
+    }
+
+    if(achou == false){
+        if(novo){
+            if(primeiro == NULL){
+                primeiro = novo;
+                ultimo = novo;
+            }else{
+                ultimo->prox = novo;
+                ultimo = novo;
+            }
         }
     }
 }
@@ -318,6 +398,24 @@ void PilhaOp::imprimirOperacoes(){
     cout << "SALDO: " << saldo << endl;
 }
 
+//Exibir menu
+void exibirMenu(){
+    cout << endl;
+    cout << "================================================" << endl;
+    cout << "|                   M E N U                    |" << endl;
+    cout << "================================================" << endl;
+    cout << "|      (c) Criar Cliente                       |" << endl;
+    cout << "|      (o) Inserir Operacao                    |" << endl;
+    cout << "|      (b) Buscar Cliente                      |" << endl;
+    cout << "|      (p) Imprimir                            |" << endl;
+    cout << "|      (d) Deletar Cliente                     |" << endl;
+    cout << "|      (s) Salvar                              |" << endl;
+    cout << "|      (a) Atualizar                           |" << endl;
+    cout << "|      (q) Sair                                |" << endl;
+    cout << "================================================" << endl;
+    cout << endl;
+}
+
 //Programa principal
 int main(){
     ListaCliente listacli;
@@ -328,6 +426,7 @@ int main(){
     char op = 'a';
     
     while(op != 'q'){
+        exibirMenu();
         cout << "\nOperacao: ";
         cin >> op;
         cout << endl;
@@ -371,9 +470,13 @@ int main(){
                 listacli.inserirOper(acao, preco, id);
                 break;
             
-            case 's':
+            case 's':   //salvar no arquivo
                 listacli.salvarArquivo();
                 cout << "Salvo com sucesso...";
+                break;
+
+            case 'a':   //atualizar a partir do arquivo
+                listacli.atualizar();
                 break;
             
             case 'q':   //sair
