@@ -58,10 +58,6 @@ Hash::Hash(unsigned capacidade) // capacidade tem valor default
 }
 
 Hash::~Hash() {
-    // FALTA FAZER:
-    // desalocar memória de cada item (InfoHash) armazenado
-    // desalocar o ponteiro especial REMOVIDO
-    // desalocar o vetor de ponteiros
     for (unsigned i = 0; i < mTamanho; i++){
         mVetPtDados[i] = NULL;
     }

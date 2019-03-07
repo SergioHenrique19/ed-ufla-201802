@@ -22,7 +22,7 @@ class pilhav {
 };
 
 pilhav::pilhav(int cap) : capacidade(cap), dados(NULL),
-                          tamanho(-1), posTopo(0) { 
+                          tamanho(-1), posTopo(0) {
     if(capacidade > 0) {
         dados = new Dado[capacidade];
     }
